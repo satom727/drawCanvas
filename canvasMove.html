@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8' />
+    <script src='http://code.jquery.com/jquery-2.1.0.min.js'></script>
+    <title>HTML 5</title>
+    <style>
+    canvas{
+        width:500;
+        height:600;
+        background: #ccc;
+    }
+    </style>
+  </head>
+  <body>
+  <div id="area">
+    <canvas id="canvas" width="300" height="400"></canvas>
+  </div>
+  <div id="btnArea">
+      <input type="button" id="btn1" value="パターン１">
+  </div>
+  </body>
+  <script>
+    var canvas = document.getElementById('canvas');
+    var area = document.getElementById('area');
+    var ctx = canvas.getContext('2d');
+    (function(){
+        this.incrementX = function() {
+            this.x++;
+        };
+        this.decrementX = function() {
+            this.x--;
+        };
+        this.incrementY = function() {
+            this.y++;
+        };
+        this.decrementY = function() {
+            this.y--;
+        };
+        this.move = function(ctx) {
+            //call()はその場で関数を実行するためsetTimeoutとは併用できない(第二引数では実行できる)
+            //window.setTimeout(function(){console.log('###!!');}.call(this),function(){return 5000;}.call(this));
+            //逆にbindは関数を生成して返すのみで実行されないためsetTimeoutの第二引数では使えない
+            //window.setTimeout(function(){console.log('this is test');this.incrementX();console.log(this);}.bind(this),function(){console.log(this);return 5000;}.bind(this));
+            if(this.maxx > this.x){
+                window.setTimeout(function(ctx){
+                 //   ctx.fillStyle = "#CCC";
+                 //   ctx.clearRect(this.x,this.y,this.w,this.h);
+                 //   this.incrementX();
+                 //   ctx.fillStyle = "#000";
+                 //   ctx.fillRect(this.x, this.y, this.w, this.h);
+                 //   this.movex(ctx);
+                }.bind(this,ctx),function(){
+                    return this.timer;
+                }.call(this));
+            }
+        };
+        this.movey = function(ctx) {
+            ctx.fillStyle = "#CCC";
+            ctx.clearRect(this.x,this.y,this.w,this.h);
+            this.incrementY();
+            ctx.fillStyle = "#000";
+            ctx.fillRect(this.x, this.y, this.w, this.h);
+        };
+        this.movex = function(ctx) {
+            ctx.fillStyle = "#CCC";
+            ctx.clearRect(this.x,this.y,this.w,this.h);
+            this.incrementX();
+            ctx.fillStyle = "#000";
+            ctx.fillRect(this.x, this.y, this.w, this.h);
+        };
+        this.moveyy = function(ctx) {
+            ctx.fillStyle = "#CCC";
+            ctx.clearRect(this.x,this.y,this.w,this.h);
+            this.decrementY();
+            ctx.fillStyle = "#000";
+            ctx.fillRect(this.x, this.y, this.w, this.h);
+        };
+        this.movexx = function(ctx) {
+            ctx.fillStyle = "#CCC";
+            ctx.clearRect(this.x,this.y,this.w,this.h);
+            this.decrementX();
+            ctx.fillStyle = "#000";
+            ctx.fillRect(this.x, this.y, this.w, this.h);
+        };
+    }).call(MakePanel.prototype);
+
+    $(document).ready(function () {
+        $('#canvas').on('click',function(e){
+            var canvasPos = e.target.getBoundingClientRect();
+            var px = e.clientX - canvasPos.left;
+            var py = e.clientY - canvasPos.top;
+            var panel = new MakePanel(px,py,20,20,20);
+            panel.movex(ctx);
+        });
+        $('#btn1').on('click',function(){
+            clearCanvas(ctx);
+            var panel = new MakePanel(10,10,20,40,40);
+            panel.act = function(ctx){
+                window.setTimeout(function(ctx){
+                    if(this.index < 30 ){
+                        this.movex(ctx);
+                        this.act(ctx);
+                    }else if(this.index < 60){
+                        this.movey(ctx);
+                        this.act(ctx);
+                    }else if(this.index < 90){
+                        this.movexx(ctx);
+                        this.act(ctx);
+                    }else if(this.index < 120){
+                        this.moveyy(ctx);
+                        this.act(ctx);
+                    }
+                    this.index++;
+                }.bind(this,ctx),function(){
+                    return this.timer;
+                }.call(this));
+            };
+            panel.act(ctx);
+        });
+    });
+function clearCanvas(ctx){
+    ctx.fillStyle = "#CCC";
+    ctx.clearRect(0,0,500,600);
+}
+function MakePanel(posX,posY,time,width,height){
+   // this.maxx = 300;
+   // this.maxy = 300;
+    this.x = posX;
+    this.y = posY;
+    this.timer = time;
+    this.w = width;
+    this.h = height;
+    this.index = 0;
+};
+
+  </script>
+</html>
